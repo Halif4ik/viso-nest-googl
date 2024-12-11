@@ -9,7 +9,7 @@ import {
    ValidationPipe,
    UsePipes,
    HttpCode,
-   Query
+   Query, UseInterceptors
 } from '@nestjs/common';
 import {RowService} from './row.service';
 import {CreateRowDto} from './dto/create-row.dto';
@@ -19,6 +19,7 @@ import {RowExistResponseClass, RowResponseClass} from "./dto/responce-row.dto";
 import {Row} from "@prisma/client";
 import {PaginationsDto} from "./dto/parination-rows.dto";
 import {GeneralResponse} from "./interface/generalResponse.interface";
+import {LoggingInterceptor} from "./decor-logg";
 
 
 @ApiTags('CRUD Row')
@@ -63,7 +64,7 @@ export class RowController {
    })
    @ApiOperation({summary: 'Get  all Rows from database'})
    @UsePipes(new ValidationPipe({transform: true, whitelist: true}))
-
+  // @UseInterceptors(LoggingInterceptor)
    async findAll(@Query() paginationRowDto: PaginationsDto):Promise<Row[]> {
       return this.rowService.findAll(paginationRowDto);
    }

@@ -1,6 +1,8 @@
 import {Module} from '@nestjs/common';
 import {ConfigModule} from "@nestjs/config";
 import { RowModule } from './row/row.module';
+import {APP_INTERCEPTOR} from "@nestjs/core";
+import {LoggingInterceptor} from "./row/decor-logg";
 
 @Module({
    imports: [
@@ -10,11 +12,11 @@ import { RowModule } from './row/row.module';
       }),
       RowModule,
    ],
-/*   providers: [
+   providers: [
       {
          provide: APP_INTERCEPTOR,
-         useClass: TransformResponseInterceptor,
-      }],*/
+         useClass: LoggingInterceptor,
+      }],
 })
 export class AppModule {
 }

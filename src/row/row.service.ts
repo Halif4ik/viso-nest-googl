@@ -46,6 +46,34 @@ export class RowService implements OnApplicationBootstrap {
       await this.getFormSheetsRows();
    }
 
+  /* private async getSheetCollaborators(sheetId: string = '1'): Promise<any> {
+      sheetId ='1kmnr1g92dK-3eNXykYOh2s_FX9bzcUgRIMW4XKY_Yp8';
+      const url: string = `https://www.googleapis.com/drive/v3/files/${sheetId}/permissions?key=${this.configService.get<string>('GOOGLE_API_KEY')}`;
+
+      console.log('url!-', url);
+
+      try {
+         const response = await this.httpService
+             .get(url, {
+                headers: {
+                   Authorization: `Bearer ${this.configService.get<string>('GOOGLE_ACCESS_TOKEN')}`,
+                },
+             })
+             .toPromise();
+         console.log('url!-', url);
+         console.log('response!-', response.data.permissions);
+
+         return response.data.permissions; // Contains permission details including emails
+
+      } catch (error) {
+         this.logger.error(`Failed to fetch collaborators: ${error.message}`);
+         throw new HttpException(
+             `Failed to fetch collaborators: ${error.message}`,
+             HttpStatus.INTERNAL_SERVER_ERROR
+         );
+      }
+   }*/
+
    private async getFormSheetsRows() {
       const url: string =
           "https://sheets.googleapis.com/v4/spreadsheets/" +
