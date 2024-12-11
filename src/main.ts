@@ -16,10 +16,10 @@ import {RequestMethod} from "@nestjs/common";
        .addTag('Test Doc')
        .build();
    const document = SwaggerModule.createDocument(app, config);
-   SwaggerModule.setup(process.env.SWAGGER_HOST || 'api/docs', app, document);
+   SwaggerModule.setup(process.env.SWAGGER_HOST || '/docs', app, document);
 
    // Define the CORS options
-   const corsOptions: CorsOptions = {
+   /*const corsOptions: CorsOptions = {
       origin: [
          process.env.CORS_HOST_HTTP || 'http://localhost:3008',
          'https://www.google.com',
@@ -27,7 +27,7 @@ import {RequestMethod} from "@nestjs/common";
       ],
       methods: 'POST,GET,PATCH,DELETE',
       credentials: true, // Enable cookies and authentication headers
-   };
+   };*/
 
    app.enableCors(corsOptions);
 
