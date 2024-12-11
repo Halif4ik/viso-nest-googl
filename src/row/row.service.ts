@@ -116,7 +116,17 @@ export class RowService implements OnApplicationBootstrap {
       return rows;
    }
 
-  /* findOne(paginationRowDto: PaginationsDto) {
-      return [];
-   }*/
+   async findOne(id: number): Promise<Row | null> {
+      const row: Row | null = await this.prisma.row.findUnique({
+         where: {
+            id,
+         }
+      });
+
+      if (!row) {
+         throw new HttpException('Пользователь не найден', HttpStatus.NOT_FOUND);
+      } else {
+         return row;
+      }
+   }
 }

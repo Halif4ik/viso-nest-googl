@@ -71,8 +71,8 @@ export class RowController {
 
 
    //3.All Users can get  one row form BD by id
-   //Endpoint: Get http://localhost:3008/rows?page=1&revert=true&limit=2&start=0
-   /*@Get()
+   //Endpoint: Get http://localhost:3008/rows/38
+   @Get(':id')
    @ApiOkResponse({
       status: 200,
       description: "Row got successfully",
@@ -86,8 +86,8 @@ export class RowController {
    @ApiOperation({summary: 'Get  all Rows from database'})
    @UsePipes(new ValidationPipe({transform: true, whitelist: true}))
 
-   async findAll(@Query() paginationRowDto: PaginationsDto):Promise<Row[]> {
-      return this.rowService.findOne(paginationRowDto);
-   }*/
+   async findOne(@Param('id') id: number):Promise<Row|null> {
+      return this.rowService.findOne(id);
+   }
 
 }
