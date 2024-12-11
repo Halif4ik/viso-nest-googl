@@ -14,4 +14,6 @@ model Row {
   text          String
   empty         Boolean  @default(false)
   createdAt     DateTime @default(now())
+
+  @@unique([row_sheets, column_sheets])
 }
