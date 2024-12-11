@@ -21,7 +21,7 @@ import {RequestMethod} from "@nestjs/common";
    // Define the CORS options
    const corsOptions: CorsOptions = {
       origin: [
-         process.env.CORS_HOST_HTTP || 'http://localhost:3008',
+         process.env.CORS_HOST_HTTP,
          'https://www.google.com',
          'https://docs.google.com/',
       ],
@@ -29,7 +29,7 @@ import {RequestMethod} from "@nestjs/common";
       credentials: true, // Enable cookies and authentication headers
    };
 
-   //app.enableCors(corsOptions);
+   app.enableCors(corsOptions);
 
 /*   app.setGlobalPrefix('api/v1', {
       exclude: [{path: '/', method: RequestMethod.GET}],
