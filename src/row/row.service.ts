@@ -6,6 +6,7 @@ import {Row} from "@prisma/client";
 import {NotificationsGateway} from "./notifications.gateway";
 import {HttpService} from "@nestjs/axios";
 import {AxiosResponse} from "axios";
+import {PaginationsDto} from "./dto/parination-rows.dto";
 
 @Injectable()
 export class RowService implements OnApplicationBootstrap {
@@ -98,4 +99,24 @@ export class RowService implements OnApplicationBootstrap {
          throw new HttpException('Error processing rows', HttpStatus.INTERNAL_SERVER_ERROR);
       }
    }
+
+   async findAll(paginationRowDto: PaginationsDto): Promise<Row[]> {
+      const {page, revert, start = 0, limit} = paginationRowDto;
+      const order = revert ? 'desc' : 'asc';
+      const lim: number = limit || +this.configService.get<number>('PAGE_PAGINATION');
+
+      const rows: Row[] = await this.prisma.row.findMany({
+         skip: page ? (page - 1) * lim : start,
+         take: lim,
+         orderBy: {
+            id: order,
+         },
+      });
+
+      return rows;
+   }
+
+  /* findOne(paginationRowDto: PaginationsDto) {
+      return [];
+   }*/
 }
