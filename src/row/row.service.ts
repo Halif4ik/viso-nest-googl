@@ -1,26 +1,27 @@
-import { Injectable } from '@nestjs/common';
-import { CreateRowDto } from './dto/create-row.dto';
-import { UpdateRowDto } from './dto/update-row.dto';
+import {Injectable, Logger} from '@nestjs/common';
+import {CreateRowDto} from './dto/create-row.dto';
+import {UpdateRowDto} from './dto/update-row.dto';
+import {PrismaService} from "../prisma.service";
+import {ConfigService} from "@nestjs/config";
+import {Row} from "@prisma/client";
+import {NotificationsGateway} from "./notifications.gateway";
 
 @Injectable()
 export class RowService {
-  create(createRowDto: CreateRowDto) {
-    return 'This action adds a new row';
-  }
+   private readonly logger: Logger = new Logger(RowService.name);
 
-  findAll() {
-    return `This action returns all row`;
-  }
+   constructor(private prisma: PrismaService,
+               private readonly configService: ConfigService,
+               private readonly notificationsGateway: NotificationsGateway,) {
+   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} row`;
-  }
+   async create(createRowDto: CreateRowDto):Promise<string> {
+      const userInDB = await this.prisma.row.create({
+         data: {
 
-  update(id: number, updateRowDto: UpdateRowDto) {
-    return `This action updates a #${id} row`;
-  }
+         }
+      })
+      return 'This action adds a new row';
+   }
 
-  remove(id: number) {
-    return `This action removes a #${id} row`;
-  }
 }

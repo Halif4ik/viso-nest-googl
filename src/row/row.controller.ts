@@ -1,34 +1,35 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { RowService } from './row.service';
-import { CreateRowDto } from './dto/create-row.dto';
-import { UpdateRowDto } from './dto/update-row.dto';
+import {Controller, Get, Post, Body, Patch, Param, Delete, ValidationPipe, UsePipes, HttpCode} from '@nestjs/common';
+import {RowService} from './row.service';
+import {CreateRowDto} from './dto/create-row.dto';
+import {UpdateRowDto} from './dto/update-row.dto';
+import {ApiBadRequestResponse, ApiOkResponse, ApiOperation, ApiTags} from "@nestjs/swagger";
+import {RowExistResponseClass, RowResponseClass} from "./dto/responce-row.dto";
 
-@Controller('row')
+@ApiTags('CRUD Row')
+@Controller('rows')
 export class RowController {
-  constructor(private readonly rowService: RowService) {}
+   constructor(private readonly rowService: RowService) {
+   }
 
-  @Post()
-  create(@Body() createRowDto: CreateRowDto) {
-    return this.rowService.create(createRowDto);
-  }
+   //1.All Users can create new account
+   //Endpoint: Post /api/v1/rows/create
+   @Post('create')
+   @HttpCode(200)
+   @ApiOkResponse({
+      status: 200,
+      description: "Row created successfully",
+      type: RowResponseClass
+   })
+   @ApiBadRequestResponse({
+      status: 400,
+      description: "Row already exist in db",
+      type: RowExistResponseClass
+   })
+   @ApiOperation({summary: 'Created new row in database'})
+   @UsePipes(new ValidationPipe({transform: true, whitelist: true}))
 
-  @Get()
-  findAll() {
-    return this.rowService.findAll();
-  }
+   create(@Body() createRowDto: CreateRowDto): Promise<any> {
+      return this.rowService.create(createRowDto);
+   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.rowService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateRowDto: UpdateRowDto) {
-    return this.rowService.update(+id, updateRowDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.rowService.remove(+id);
-  }
 }
