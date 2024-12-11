@@ -68,25 +68,7 @@ export class RowController {
       return this.rowService.findAll(paginationRowDto);
    }
 
-   //2.All Users can get rows form BD
-   //Endpoint: Get http://localhost:3008/rows?page=1&revert=true&limit=2&start=0
-   @Get()
-   @ApiOkResponse({
-      status: 200,
-      description: "Row geted successfully",
-      type: RowResponseClass
-   })
-   @ApiBadRequestResponse({
-      status: 400,
-      description: "Somthing wrong",
-      type: RowExistResponseClass
-   })
-   @ApiOperation({summary: 'Get  all Rows from database'})
-   @UsePipes(new ValidationPipe({transform: true, whitelist: true}))
 
-   async findAll(@Query() paginationRowDto: PaginationsDto):Promise<Row[]> {
-      return this.rowService.findAll(paginationRowDto);
-   }
 
    //3.All Users can get  one row form BD by id
    //Endpoint: Get http://localhost:3008/rows?page=1&revert=true&limit=2&start=0
