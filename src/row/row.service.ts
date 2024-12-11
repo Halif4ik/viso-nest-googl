@@ -57,7 +57,6 @@ export class RowService implements OnApplicationBootstrap {
       try {
          const axiosResponses = await this.httpService.get<any>(url).toPromise()
          axiosData = axiosResponses.data;
-         console.log('axiosData!-', axiosData);
       } catch (error) {
          console.error('Error loading data:', error[0]);
          throw new HttpException(`Responce from Googlesheets- ${error[0]} and status_code- ${+error[1]}`, HttpStatus.BAD_REQUEST);
