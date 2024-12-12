@@ -17,3 +17,8 @@ model Row {
 
   @@unique([row_sheets, column_sheets])
 }
+
+model Customer {
+  id   Int    @id @default(autoincrement())
+  info String @unique
+}

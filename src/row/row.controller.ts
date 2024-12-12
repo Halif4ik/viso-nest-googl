@@ -45,6 +45,8 @@ export class RowController {
    @ApiOperation({summary: 'Created new row in database'})
    @UsePipes(new ValidationPipe({transform: true, whitelist: true}))
 
+
+/*TODO @UserDec() userFromGuard: Customer*/
    create(@Body() createRowDto: CreateRowDto): Promise<Row> {
       return this.rowService.create(createRowDto);
    }

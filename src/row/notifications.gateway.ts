@@ -10,15 +10,15 @@ import {Row} from "@prisma/client";
 
 @WebSocketGateway(3007, {cors: {origin: '*'}})
 export class NotificationsGateway implements OnGatewayConnection, OnGatewayDisconnect {
-   private logger: Logger = new Logger('NotificationsGateway');
    private clientGlobal: Socket;
 
 
    @WebSocketServer() server: Server;
-
    async handleConnection(client: Socket): Promise<void> {
       try {
-         await client.join('masseges');
+         console.log('###client.request-',client.request);
+         console.log('client.join-',client.request.headers.toString());
+         await client.join(client.request.headers.toString());
          this.clientGlobal = client;
       } catch (error: Error | any) {
          client.emit('error', 'unauthorized');
@@ -30,11 +30,13 @@ export class NotificationsGateway implements OnGatewayConnection, OnGatewayDisco
       await client.leave(client.nsp.name);
    }
 
-   async sendNotificationToUser(userIdWhoCreated: number, createdNewRow: Row | any, type: string): Promise<void> {
+   async sendRowDataToFront(clientIdWhoCreated: number, createdNewRow: Row | any, type: string): Promise<void> {
+      console.log('$$$$userIdWhoCreated-',clientIdWhoCreated);
+
       // Iterate over the rooms map
       this.clientGlobal?.['adapter'].rooms.forEach((room, roomId) => {
          // Check if the roomId is not equal to userId Who Created this new post
-         if (roomId != userIdWhoCreated)
+         if (roomId != clientIdWhoCreated)
              // Send a message to this room
             this.server.to(roomId).emit('message', {type, post: createdNewRow});
 

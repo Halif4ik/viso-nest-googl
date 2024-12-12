@@ -36,3 +36,24 @@ If needed, you can revert the migrations and remove the tables by running:
 ```
 prisma  migrate diff 
 ```
+forGoogl() {
+!(function onEdit(e) {
+console.log('range-',e.range.getA1Notation());
+console.log('values-',e.range.getValues());
+
+         const url = "https://viso-nest-googl.onrender.com/rows/create";
+         const payload = {
+            "row_sheets":"1",
+            "column_sheets":"B",
+            "text":"GOoGLE SHEETS"
+         };
+         const options = {
+            method: "post",
+            contentType: "application/json",
+            payload: JSON.stringify(payload),
+         };
+         UrlFetchApp.fetch(url, options);
+      })()
+
+
+}
