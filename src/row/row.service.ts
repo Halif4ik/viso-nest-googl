@@ -38,7 +38,6 @@ export class RowService implements OnApplicationBootstrap {
          },
       });
 
-      /*this.notificationsGateway.sendRowDataToFront()*/
 
       /*this.logger.log(`Created/updaed cell ${newRowOrUpdated.id} new- ${newRowOrUpdated.text}`);*/
       return newRowOrUpdated;
@@ -130,10 +129,11 @@ export class RowService implements OnApplicationBootstrap {
       }
    }
 
-   async findAll(paginationRowDto: PaginationsDto): Promise<Row[]> {
+   async findAll(paginationRowDto: PaginationsDto, userFromGuard: { ip: string, user_agent: string }): Promise<Row[]> {
       const {page, revert, start = 0, limit} = paginationRowDto;
       const order = revert ? 'desc' : 'asc';
       const lim: number = limit || +this.configService.get<number>('PAGE_PAGINATION');
+      console.log('!!!userFromGuard-',userFromGuard);
 
       const rows: Row[] = await this.prisma.row.findMany({
          skip: page ? (page - 1) * lim : start,
@@ -143,6 +143,7 @@ export class RowService implements OnApplicationBootstrap {
          },
       });
 
+      /*this.notificationsGateway.sendRowDataToFront()*/
       return rows;
    }
 

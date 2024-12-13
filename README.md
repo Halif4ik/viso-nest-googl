@@ -36,6 +36,7 @@ If needed, you can revert the migrations and remove the tables by running:
 ```
 prisma  migrate diff 
 ```
+
 forGoogl() {
 !(function onEdit(e) {
 console.log('range-',e.range.getA1Notation());

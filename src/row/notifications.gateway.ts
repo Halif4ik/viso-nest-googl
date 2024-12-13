@@ -14,11 +14,17 @@ export class NotificationsGateway implements OnGatewayConnection, OnGatewayDisco
 
 
    @WebSocketServer() server: Server;
+
    async handleConnection(client: Socket): Promise<void> {
       try {
-         console.log('###client.request-',client.request);
-         console.log('client.join-',client.request.headers.toString());
-         await client.join(client.request.headers.toString());
+         const clientFromReq = {
+            ip:client.request?.['ip'] || client.request.socket.remoteAddress,
+            user_agent: client.request.headers['user-agent']
+         }
+         console.log('###client.request-', clientFromReq);
+         console.log('client.join-', clientFromReq.toString());
+
+         await client.join(clientFromReq.toString());
          this.clientGlobal = client;
       } catch (error: Error | any) {
          client.emit('error', 'unauthorized');
@@ -31,7 +37,7 @@ export class NotificationsGateway implements OnGatewayConnection, OnGatewayDisco
    }
 
    async sendRowDataToFront(clientIdWhoCreated: number, createdNewRow: Row | any, type: string): Promise<void> {
-      console.log('$$$$userIdWhoCreated-',clientIdWhoCreated);
+      console.log('$$$$userIdWhoCreated-', clientIdWhoCreated);
 
       // Iterate over the rooms map
       this.clientGlobal?.['adapter'].rooms.forEach((room, roomId) => {

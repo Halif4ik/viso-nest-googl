@@ -16,10 +16,11 @@ import {CreateRowDto} from './dto/create-row.dto';
 import {UpdateRowDto} from './dto/update-row.dto';
 import {ApiBadRequestResponse, ApiOkResponse, ApiOperation, ApiResponse, ApiTags} from "@nestjs/swagger";
 import {RowExistResponseClass, RowResponseClass} from "./dto/responce-row.dto";
-import {Row} from "@prisma/client";
+import {Customer, Row} from "@prisma/client";
 import {PaginationsDto} from "./dto/parination-rows.dto";
 import {GeneralResponse} from "./interface/generalResponse.interface";
 import {LoggingInterceptor} from "./decor-logg";
+import {UserDec} from "./decor-current-user";
 
 
 @ApiTags('CRUD Row')
@@ -46,7 +47,6 @@ export class RowController {
    @UsePipes(new ValidationPipe({transform: true, whitelist: true}))
 
 
-/*TODO @UserDec() userFromGuard: Customer*/
    create(@Body() createRowDto: CreateRowDto): Promise<Row> {
       return this.rowService.create(createRowDto);
    }
@@ -67,8 +67,8 @@ export class RowController {
    @ApiOperation({summary: 'Get  all Rows from database'})
    @UsePipes(new ValidationPipe({transform: true, whitelist: true}))
   // @UseInterceptors(LoggingInterceptor)
-   async findAll(@Query() paginationRowDto: PaginationsDto):Promise<Row[]> {
-      return this.rowService.findAll(paginationRowDto);
+   async findAll(@Query() paginationRowDto: PaginationsDto,@UserDec() userFromGuard: {ip: string, user_agent:string}):Promise<Row[]> {
+      return this.rowService.findAll(paginationRowDto,userFromGuard);
    }
 
 
