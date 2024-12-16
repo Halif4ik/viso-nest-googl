@@ -1,77 +1,62 @@
-function onEdit(e) {
-    try {
-        console.log('on e-:', e);
-        const range = e.range;
-        console.log('on range-:', range);
-
-        const row = range.getRow();
-        const column = range.getColumn();
-        const text = e.range.getValue();
-
-        // Backend URL to handle the request
-        const backendUrl = 'https://viso-nest-googl.onrender.com/rows/create';
-
-        // Construct the full URL with query parameters
-        const url = `${backendUrl}?row_sheets=${row}&column_sheets=${column}&text=${encodeURIComponent(text)}`;
-
-        // Make the GET request
-        const options = {
-            method: 'get',
-        };
-        //const response = UrlFetchApp.fetch(url, options);
-
-        //console.log('Data sent to backend:', url, 'Response:', response.getResponseCode());
-    } catch (error) {
-        console.error('Error in onEdit:', error.message);
-    }
-}
-
+/*POST*/
 function doGet(e) {
     try {
-        console.log('Source-:', e.source);
+        // Extract data from the edited cell and user information
+        const getCurrentCell = e.source.getSheets()[0].getCurrentCell();
         const userEmail = e.user.getEmail();
-        console.log('userEmail-:',userEmail);
+        const row = getCurrentCell.getRow();
+        const column = getCurrentCell.getColumn();
+        const text = getCurrentCell.getValues()[0][0];
 
-        const getSheets = e.source.getSheets();
-        console.log('getSheets-:',getSheets);
+        // Create the JSON payload for the POST request
+        const payload = {
+            row_sheets: row,
+            column_sheets: column,
+            user_email: userEmail,
+            text: text
+        };
 
-        // Extract query parameters sent by your backend or triggered by Google Sheets
-        const range = e.source.getRange();
-        console.log('range-:', range);
-
-        const getDataRange = e.source.getDataRange();
-        console.log('getDataRange-:', getDataRange);
-
-        const row = range.getRow();
-        const column = range.getColumn();
-        const text = range.getValue();
+        // Set up the POST request options
+        const url = 'https://viso-nest-googl.onrender.com/rows/create';
+        const options = {
+            method: 'post',
+            contentType: 'application/json',
+            payload: JSON.stringify(payload)
+        };
 
         // Log event details for debugging
-        console.log('Row:', row, 'Column:', column, 'Value:', text);
+        console.log('Payload:', payload);
+        console.log('URL:', url);
 
-        // Log the received data for debugging
-        console.log('Edited range:', range.getA1Notation());
-
-        // If the row, column, or text is missing, log an error
-        if (!row || !column || !text) {
-            console.error('Missing parameters in request');
-            return ContentService
-                .createTextOutput(JSON.stringify({ success: false, error: 'Missing parameters in request' }))
-                .setMimeType(ContentService.MimeType.JSON);
-        }
+        // Send the POST request
+        UrlFetchApp.fetch(url, options);
+    } catch (error) {
+        console.error('Error in doGet:', error.message);
+        return ContentService
+            .createTextOutput(JSON.stringify({ success: false, error: error.message }))
+            .setMimeType(ContentService.MimeType.JSON);
+    }
+}
+/*GET*/
+function doGet(e) {
+    try {
+        // Extract query parameters sent by your backend or triggered by Google Sheets
+        const getCurrentCell = e.source.getSheets()[0].getCurrentCell();
+        const userEmail = e.user.getEmail();
+        const row = getCurrentCell.getRow();
+        const column = getCurrentCell.getColumn();
+        const text = getCurrentCell.getValues()[0][0];
 
         // Forward the request to your backend
-        const url = `https://viso-nest-googl.onrender.com/rows/create?row_sheets=${row}&column_sheets=${column}&text=${encodeURIComponent(text)}`;
+        const url = `https://viso-nest-googl.onrender.com/rows/create?row_sheets=${row}&column_sheets=${column}&user_email=${userEmail}&text=${encodeURIComponent(text)}`;
         const options = {
             method: 'get', // Use GET method
         };
+        // Log event details for debugging
+        console.log('Row:', row, 'Column:', column, 'Value:', text);
+        console.log('url:-', url);
 
-        const response = UrlFetchApp.fetch(url, options);
-
-        // Return success message
-        return ContentService
-            .createTextOutput(JSON.stringify({ success: true, status: response.getResponseCode() }))
-            .setMimeType(ContentService.MimeType.JSON);
+       UrlFetchApp.fetch(url, options);
     } catch (error) {
         console.error('Error in doGet:', error.message);
         return ContentService
