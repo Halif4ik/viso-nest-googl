@@ -30,4 +30,9 @@ export class CreateRowDto {
    @IsOptional()
    readonly empty?: boolean;
 
+   @IsEmail()
+   @ApiProperty({example: "temp1@gmail.com", description: 'Email example'})
+   @IsOptional()
+   readonly user_email?: string;
+
 }
