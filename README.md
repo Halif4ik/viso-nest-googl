@@ -36,6 +36,43 @@ If needed, you can revert the migrations and remove the tables by running:
 ```
 prisma  migrate diff 
 ```
+For create websoket onection on front in dev tools before send post request:
+```
+const socket = new WebSocket('ws://localhost:3007');
+
+socket.onmessage = (event) => {
+    console.log('Message from server:', event.data);
+};
+socket.onerror = (error) => {
+    console.error('WebSocket error:', error);
+};
+socket.onclose = () => {
+    console.log('WebSocket connection closed');
+};
+socket.onopen = () => {
+    console.log('WebSocket connection established');
+};
+
+```
+
+For send post request:
+```
+fetch('http://localhost:3008/rows/create', {
+    method: 'POST', // Specify the HTTP method
+    headers: {
+        'Content-Type': 'application/json' // Set the content type
+    },
+    body: JSON.stringify({
+        row_sheets: "1",
+        column_sheets: "B",
+        text: "123456A"
+    }) // Convert the JSON body to a string
+})
+.then(response => response.json()) 
+.then(data => console.log('Success:', data)) 
+.catch(error => console.error('Error:', error)); 
+
+```
 
 forGoogl() {
 !(function onEdit(e) {

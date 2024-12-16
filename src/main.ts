@@ -23,6 +23,7 @@ import {RequestMethod} from "@nestjs/common";
       origin: [
          process.env.CORS_HOST_HTTP,
          'https://www.google.com',
+         'ws://localhost:3007',
          'https://docs.google.com/',
       ],
       methods: 'POST,GET,PATCH,DELETE',

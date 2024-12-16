@@ -47,8 +47,8 @@ export class RowController {
    @UsePipes(new ValidationPipe({transform: true, whitelist: true}))
 
 
-   create(@Body() createRowDto: CreateRowDto): Promise<Row> {
-      return this.rowService.create(createRowDto);
+   async create(@Body() createRowDto: CreateRowDto,@UserDec() userFromGuard: {ip: string, user_agent:string}): Promise<Row> {
+      return this.rowService.create(createRowDto,userFromGuard);
    }
 
    //2.All Users can get rows form BD

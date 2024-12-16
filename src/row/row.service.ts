@@ -2,10 +2,9 @@ import {HttpException, HttpStatus, Injectable, Logger, OnApplicationBootstrap} f
 import {CreateRowDto} from './dto/create-row.dto';
 import {PrismaService} from "../prisma.service";
 import {ConfigService} from "@nestjs/config";
-import {Row} from "@prisma/client";
+import {Customer, Row} from "@prisma/client";
 import {NotificationsGateway} from "./notifications.gateway";
 import {HttpService} from "@nestjs/axios";
-import {AxiosResponse} from "axios";
 import {PaginationsDto} from "./dto/parination-rows.dto";
 
 @Injectable()
@@ -18,8 +17,8 @@ export class RowService implements OnApplicationBootstrap {
                private readonly notificationsGateway: NotificationsGateway,) {
    }
 
-   async create(createRowDto: CreateRowDto): Promise<Row> {
-      const newRowOrUpdated: Promise<Row> = this.prisma.row.upsert({
+   async create(createRowDto: CreateRowDto, userFromGuard: { ip: string, user_agent: string }): Promise<Row> {
+      const newRowOrUpdated: Row = await this.prisma.row.upsert({
          where: {
             row_sheets_column_sheets: {
                row_sheets: createRowDto.row_sheets,
@@ -38,6 +37,10 @@ export class RowService implements OnApplicationBootstrap {
          },
       });
 
+      /*after update bd with new data send it by WS*/
+      const curUser: Customer = await this.getUser(userFromGuard);
+      if (curUser.user_agent != 'Node bot')
+         this.notificationsGateway.sendRowDataToFront(curUser.id, newRowOrUpdated, "new-row");
 
       /*this.logger.log(`Created/updaed cell ${newRowOrUpdated.id} new- ${newRowOrUpdated.text}`);*/
       return newRowOrUpdated;
@@ -99,6 +102,8 @@ export class RowService implements OnApplicationBootstrap {
       // Collect all promises
       const promises: Promise<Row>[] = [];
       const values = axiosData.values;
+      const botUser = await this.createOrFindUser(
+          {ip: '192.168.1.1', user_agent: 'Node bot'});
 
       for (let rowIndex = 0; rowIndex < values.length; rowIndex++) {
          const row = values[rowIndex];
@@ -106,14 +111,14 @@ export class RowService implements OnApplicationBootstrap {
             const cellText = row[colIndex];
 
             if (cellText) {
-               const rowNumber = rowIndex + 1; // Convert to 1-based index
-               const columnLetter = String.fromCharCode(65 + colIndex); // Convert to A-Z
+               const rowNumber: number = rowIndex + 1;
+               const columnLetter: string = String.fromCharCode(65 + colIndex); // Convert to A-Z
                promises.push(
                    this.create({
                       row_sheets: rowNumber,
                       column_sheets: columnLetter,
                       text: cellText,
-                   })
+                   }, botUser)
                );
             }
          }
@@ -133,7 +138,6 @@ export class RowService implements OnApplicationBootstrap {
       const {page, revert, start = 0, limit} = paginationRowDto;
       const order = revert ? 'desc' : 'asc';
       const lim: number = limit || +this.configService.get<number>('PAGE_PAGINATION');
-      console.log('!!!userFromGuard-',userFromGuard);
 
       const rows: Row[] = await this.prisma.row.findMany({
          skip: page ? (page - 1) * lim : start,
@@ -142,23 +146,43 @@ export class RowService implements OnApplicationBootstrap {
             id: order,
          },
       });
-
-      /*this.notificationsGateway.sendRowDataToFront()*/
+      /*create user which will listen by WS*/
+      await this.createOrFindUser(userFromGuard)
       return rows;
    }
 
    async findOne(id: number): Promise<Row | null> {
-      const row: Row | null = await this.prisma.row.findUnique({
-         where: {
-            id,
-         }
-      });
+      const row: Row | null = await this.prisma.row.findUnique({where: {id}});
+      if (!row)
+         throw new HttpException('Row не найден', HttpStatus.NOT_FOUND);
+      else return row;
 
-      if (!row) {
-         throw new HttpException('Пользователь не найден', HttpStatus.NOT_FOUND);
-      } else {
-         return row;
-      }
    }
 
+   async createOrFindUser(userFromGuard: { ip: string, user_agent: string }): Promise<Customer> {
+      return this.prisma.customer.upsert({
+         where: {
+            ip_user_agent: {
+               ip: userFromGuard.ip,
+               user_agent: userFromGuard.user_agent,
+            },
+         },
+         create: {
+            ip: userFromGuard.ip,
+            user_agent: userFromGuard.user_agent,
+         },
+         update: {},
+      });
+   }
+
+   async getUser(clientFromReq: { ip: any; user_agent: string }): Promise<Customer> {
+      return this.prisma.customer.findUnique({
+         where: {
+            ip_user_agent: {
+               ip: clientFromReq.ip,
+               user_agent: clientFromReq.user_agent,
+            },
+         }
+      });
+   }
 }
