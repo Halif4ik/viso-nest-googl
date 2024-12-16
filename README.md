@@ -2,7 +2,7 @@
 ## Description:
 This project serves as the back end for a test task. It provides various API endpoints for managing. The application is built using NestJS, a powerful framework for building scalable and maintainable
 server-side applications.
-I used for check on this endpoint- http://localhost:3008/.
+I used for check on this endpoint- http://localhost:3000/.
 
 ## Installation:
 Before running the application, create a .env file with the necessary environment variables, as specified in the sample
@@ -36,62 +36,53 @@ If needed, you can revert the migrations and remove the tables by running:
 ```
 prisma  migrate diff 
 ```
-For create websoket onection on front in dev tools before send post request:
+## For local testing WS:
+### Load library to front end page:
 ```
-const socket = new WebSocket('ws://localhost:3007');
-
-socket.onmessage = (event) => {
-    console.log('Message from server:', event.data);
+const script = document.createElement('script');
+script.src = "https://cdn.socket.io/4.0.1/socket.io.min.js";
+script.onload = () => {
+   console.log('Socket.IO loaded');
 };
-socket.onerror = (error) => {
-    console.error('WebSocket error:', error);
-};
-socket.onclose = () => {
-    console.log('WebSocket connection closed');
-};
-socket.onopen = () => {
-    console.log('WebSocket connection established');
-};
-
+document.head.appendChild(script);
 ```
 
-For send post request:
+### Start soketIo conection on front in dev tools before send post request:
 ```
-fetch('http://localhost:3008/rows/create', {
-    method: 'POST', // Specify the HTTP method
+const socket = io('http://localhost:3000');
+
+socket.on('connect', () => {
+   console.log('WebSocket connection established:', socket.id);
+});
+
+socket.on('message', (data) => {
+   console.log('Message from server:', data);
+});
+
+socket.on('error', (err) => {
+   console.error('WebSocket error:', err);
+});
+
+socket.on('disconnect', () => {
+   console.log('WebSocket disconnected');
+});
+```
+
+### Send post request and you can see WS conection in console:
+```
+fetch('http://localhost:3000/rows/create', {
+    method: 'POST',  
     headers: {
-        'Content-Type': 'application/json' // Set the content type
+        'Content-Type': 'application/json'  
     },
     body: JSON.stringify({
         row_sheets: "1",
         column_sheets: "B",
-        text: "123456A"
-    }) // Convert the JSON body to a string
+        text: "WEBSOKET Info Test"
+    }) 
 })
 .then(response => response.json()) 
 .then(data => console.log('Success:', data)) 
 .catch(error => console.error('Error:', error)); 
 
 ```
-
-forGoogl() {
-!(function onEdit(e) {
-console.log('range-',e.range.getA1Notation());
-console.log('values-',e.range.getValues());
-
-         const url = "https://viso-nest-googl.onrender.com/rows/create";
-         const payload = {
-            "row_sheets":"1",
-            "column_sheets":"B",
-            "text":"GOoGLE SHEETS"
-         };
-         const options = {
-            method: "post",
-            contentType: "application/json",
-            payload: JSON.stringify(payload),
-         };
-         UrlFetchApp.fetch(url, options);
-      })()
-
-
-}

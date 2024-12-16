@@ -21,20 +21,17 @@ import {RequestMethod} from "@nestjs/common";
    // Define the CORS options
    const corsOptions: CorsOptions = {
       origin: [
-         process.env.CORS_HOST_HTTP,
-         'https://www.google.com',
-         'ws://localhost:3007',
-         'https://docs.google.com/',
+         '*' // process.env.CORS_HOST_HTTP,
       ],
       methods: 'POST,GET,PATCH,DELETE',
       credentials: true, // Enable cookies and authentication headers
    };
 
    app.enableCors(corsOptions);
-  // app.useGlobalInterceptors(new LoggingInterceptor());
-/*   app.setGlobalPrefix('api/v1', {
-      exclude: [{path: '/', method: RequestMethod.GET}],
-   });*/
+   // app.useGlobalInterceptors(new LoggingInterceptor());
+   /*   app.setGlobalPrefix('api/v1', {
+         exclude: [{path: '/', method: RequestMethod.GET}],
+      });*/
 
-   await app.listen(+(process.env.NODE_LOCAL_PORT || 3008));
+   await app.listen(+(process.env.NODE_LOCAL_PORT || 3000));
 })();

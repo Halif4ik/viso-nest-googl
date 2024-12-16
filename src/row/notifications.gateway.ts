@@ -6,11 +6,10 @@ import {
 } from '@nestjs/websockets';
 import {Logger} from '@nestjs/common';
 import {Server, Socket} from 'socket.io';
-import {Customer, Row} from "@prisma/client";
-import {RowService} from "./row.service";
+import {Row} from "@prisma/client";
 import {PrismaService} from "../prisma.service";
 
-@WebSocketGateway(3007, {cors: {origin: '*'}})
+@WebSocketGateway({cors: {origin: '*'}})
 export class NotificationsGateway implements OnGatewayConnection, OnGatewayDisconnect {
    private clientGlobal: Socket;
 
@@ -25,9 +24,6 @@ export class NotificationsGateway implements OnGatewayConnection, OnGatewayDisco
             ip: client.request?.['ip'] || client.request.socket.remoteAddress,
             user_agent: client.request.headers['user-agent']
          }
-
-         console.log('###client.request-', clientFromReq);
-         console.log('client.join-', clientFromReq.toString());
          const user = await this.prisma.customer.findUnique({
             where: {
                ip_user_agent: {
@@ -36,8 +32,6 @@ export class NotificationsGateway implements OnGatewayConnection, OnGatewayDisco
                },
             }
          });
-
-         console.log('!!user-', user);
 
          await client.join(clientFromReq.toString());
          this.clientGlobal = client;
