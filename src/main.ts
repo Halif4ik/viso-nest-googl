@@ -29,9 +29,6 @@ import {RequestMethod} from "@nestjs/common";
 
    app.enableCors(corsOptions);
    // app.useGlobalInterceptors(new LoggingInterceptor());
-   /*   app.setGlobalPrefix('api/v1', {
-         exclude: [{path: '/', method: RequestMethod.GET}],
-      });*/
 
    await app.listen(+(process.env.NODE_LOCAL_PORT || 3000));
 })();

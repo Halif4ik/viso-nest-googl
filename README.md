@@ -86,3 +86,55 @@ fetch('http://localhost:3000/rows/create', {
 .catch(error => console.error('Error:', error)); 
 
 ```
+
+
+## For https://viso-nest-googl.onrender.com/rows testing WS:
+### Load library to front end page:
+```
+const script = document.createElement('script');
+script.src = "https://cdn.socket.io/4.0.1/socket.io.min.js";
+script.onload = () => {
+   console.log('Socket.IO loaded');
+};
+document.head.appendChild(script);
+```
+
+### Start soketIo conection on front in dev tools before send post request:
+```
+const socket = io('https://viso-nest-googl.onrender.com');
+
+socket.on('connect', () => {
+   console.log('WebSocket connection established:', socket.id);
+});
+
+socket.on('message', (data) => {
+   console.log('Message from server:', data);
+});
+
+socket.on('error', (err) => {
+   console.error('WebSocket error:', err);
+});
+
+socket.on('disconnect', () => {
+   console.log('WebSocket disconnected');
+});
+```
+
+### Send post request and you can see WS conection in console:
+```
+fetch('https://viso-nest-googl.onrender.com/rows/create', {
+    method: 'POST',  
+    headers: {
+        'Content-Type': 'application/json'  
+    },
+    body: JSON.stringify({
+        row_sheets: "1",
+        column_sheets: "B",
+        text: "WEBSOKET Info Test"
+    }) 
+})
+.then(response => response.json()) 
+.then(data => console.log('Success:', data)) 
+.catch(error => console.error('Error:', error)); 
+
+```

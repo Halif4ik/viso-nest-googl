@@ -3,23 +3,18 @@ import {
    Get,
    Post,
    Body,
-   Patch,
    Param,
-   Delete,
    ValidationPipe,
    UsePipes,
    HttpCode,
-   Query, UseInterceptors
+   Query,
 } from '@nestjs/common';
 import {RowService} from './row.service';
 import {CreateRowDto} from './dto/create-row.dto';
-import {UpdateRowDto} from './dto/update-row.dto';
-import {ApiBadRequestResponse, ApiOkResponse, ApiOperation, ApiResponse, ApiTags} from "@nestjs/swagger";
+import {ApiBadRequestResponse, ApiOkResponse, ApiOperation,  ApiTags} from "@nestjs/swagger";
 import {RowExistResponseClass, RowResponseClass} from "./dto/responce-row.dto";
-import {Customer, Row} from "@prisma/client";
+import { Row} from "@prisma/client";
 import {PaginationsDto} from "./dto/parination-rows.dto";
-import {GeneralResponse} from "./interface/generalResponse.interface";
-import {LoggingInterceptor} from "./decor-logg";
 import {UserDec} from "./decor-current-user";
 
 

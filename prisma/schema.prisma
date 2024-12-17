@@ -19,10 +19,10 @@ model Row {
 }
 
 model Customer {
-  id         Int     @id @default(autoincrement())
+  id         Int    @id @default(autoincrement())
   ip         String
   user_agent String
-  email      String?
+  email      String
 
   @@unique([ip, user_agent])
 }

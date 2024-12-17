@@ -37,30 +37,3 @@ function doGet(e) {
             .setMimeType(ContentService.MimeType.JSON);
     }
 }
-/*GET*/
-function doGet(e) {
-    try {
-        // Extract query parameters sent by your backend or triggered by Google Sheets
-        const getCurrentCell = e.source.getSheets()[0].getCurrentCell();
-        const userEmail = e.user.getEmail();
-        const row = getCurrentCell.getRow();
-        const column = getCurrentCell.getColumn();
-        const text = getCurrentCell.getValues()[0][0];
-
-        // Forward the request to your backend
-        const url = `https://viso-nest-googl.onrender.com/rows/create?row_sheets=${row}&column_sheets=${column}&user_email=${userEmail}&text=${encodeURIComponent(text)}`;
-        const options = {
-            method: 'get', // Use GET method
-        };
-        // Log event details for debugging
-        console.log('Row:', row, 'Column:', column, 'Value:', text);
-        console.log('url:-', url);
-
-       UrlFetchApp.fetch(url, options);
-    } catch (error) {
-        console.error('Error in doGet:', error.message);
-        return ContentService
-            .createTextOutput(JSON.stringify({ success: false, error: error.message }))
-            .setMimeType(ContentService.MimeType.JSON);
-    }
-}
