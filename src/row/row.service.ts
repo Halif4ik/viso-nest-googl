@@ -145,39 +145,37 @@ export class RowService implements OnApplicationBootstrap {
    }
 
    async createOrFindUser(userFromGuard: { ip: string; user_agent: string }, user_email = ''): Promise<Customer> {
-      let existingUser: Customer | null
-
-      console.log('user_email-', user_email);
-      if (user_email) {
-         existingUser = await this.prisma.customer.findFirst({
+      //console.log('user_email-', user_email);
+      if (!user_email)
+         return this.prisma.customer.upsert({
+            where: {
+               ip_user_agent: {
+                  ip: userFromGuard.ip,
+                  user_agent: userFromGuard.user_agent,
+               },
+            },
+            create: {
+               ip: userFromGuard.ip,
+               user_agent: userFromGuard.user_agent,
+               email: user_email,
+            },
+            update: {},
+         });
+      else {
+         const customer: Customer | null = await this.prisma.customer.findFirst({
             where: {
                email: user_email,
             },
          });
-         console.log('IF-', existingUser);
-      } else {
-         console.log('ELSE-');
-         existingUser = await this.prisma.customer.findFirst({
-            where: {
-               AND: [
-                  {ip: userFromGuard.ip},
-                  {user_agent: userFromGuard.user_agent},
-               ],
-            },
+         if (!customer) return this.prisma.customer.create({
+            data: {
+               ip: userFromGuard.ip,
+               user_agent: userFromGuard.user_agent,
+               email: user_email,
+            }
          });
-         console.log('ELSE-', user_email);
+         else return customer;
       }
-      console.log('IF1-', existingUser?.id);
-      if (existingUser?.id) return existingUser;
-
-      // If not found, create a new user
-      return this.prisma.customer.create({
-         data: {
-            ip: userFromGuard.ip,
-            user_agent: userFromGuard.user_agent,
-            ...(user_email && {email: user_email}),
-         },
-      });
    }
 
 

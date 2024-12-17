@@ -22,7 +22,7 @@ model Customer {
   id         Int    @id @default(autoincrement())
   ip         String
   user_agent String
-  email      String @unique
+  email      String
 
   @@unique([ip, user_agent])
 }
