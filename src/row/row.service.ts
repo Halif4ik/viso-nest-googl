@@ -144,21 +144,38 @@ export class RowService implements OnApplicationBootstrap {
 
    }
 
-   async createOrFindUser(userFromGuard: { ip: string, user_agent: string }, user_email = ''): Promise<Customer> {
-      return this.prisma.customer.upsert({
-         where: {
-            ip_user_agent: {
-               ip: userFromGuard.ip,
-               user_agent: userFromGuard.user_agent,
+   async createOrFindUser(
+       userFromGuard: { ip: string; user_agent: string },
+       user_email = ''
+   ): Promise<Customer> {
+      let existingUser: Customer
+      if (user_email) {
+         existingUser = await this.prisma.customer.findFirst({
+            where: {
+               email: user_email,
             },
-         },
-         create: {
+         });
+      } else {
+         existingUser = await this.prisma.customer.findFirst({
+            where: {
+               ip_user_agent: {
+                  ip: userFromGuard.ip,
+                  user_agent: userFromGuard.user_agent,
+               }
+            },
+         });
+      }
+      if (existingUser) return existingUser;
+
+      // If not found, create a new user
+      return this.prisma.customer.create({
+         data: {
             ip: userFromGuard.ip,
-            user_agent: userFromGuard.user_agent ? userFromGuard.user_agent : user_email,
+            user_agent: userFromGuard.user_agent || user_email,
             email: user_email,
          },
-         update: {},
       });
    }
+
 
 }
