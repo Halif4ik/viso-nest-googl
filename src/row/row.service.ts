@@ -6,18 +6,25 @@ import {Customer, Row} from "@prisma/client";
 import {NotificationsGateway} from "./notifications.gateway";
 import {HttpService} from "@nestjs/axios";
 import {PaginationsDto} from "./dto/parination-rows.dto";
+import {NotifscationService} from "../notifscation/notifscation.service";
+import {google, sheets_v4} from 'googleapis';
 
 @Injectable()
 export class RowService implements OnApplicationBootstrap {
    private readonly logger: Logger = new Logger(RowService.name);
+   private linesWrittenCount: number;
 
    constructor(private prisma: PrismaService,
                private readonly configService: ConfigService,
                private readonly httpService: HttpService,
-               private readonly notificationsGateway: NotificationsGateway,) {
+               private notifscationService: NotifscationService,
+               private readonly notificationsGateway: NotificationsGateway,
+   ) {
+      this.linesWrittenCount = 0;
    }
 
    async create(createRowDto: CreateRowDto, userFromGuard: { ip: string, user_agent: string }): Promise<Row> {
+      const beforeUpdateRowCount: number = await this.prisma.row.count();
       const newRowOrUpdated: Row = await this.prisma.row.upsert({
          where: {
             row_sheets_column_sheets: {
@@ -36,14 +43,15 @@ export class RowService implements OnApplicationBootstrap {
             empty: createRowDto.empty || false,
          },
       });
+      /*sent email notification*/
+      const afterUpdateRowCount: number = await this.prisma.row.count();
+      if (afterUpdateRowCount - beforeUpdateRowCount > 0 && afterUpdateRowCount % 10 === 0) {
+         console.log('afterUpdateRowCount%');
+         //await this.notifscationService.createEmailNotific();
+      }
 
-      console.log("newRowOrUpdated++", newRowOrUpdated);
-      console.log("userFromGuard", userFromGuard);
-      console.log("createRowDto.user_email", createRowDto.user_email);
       /*after update bd with new data send it by WS*/
       const curUser: Customer = await this.createOrFindUser(userFromGuard, createRowDto.user_email);
-      console.log("!!curUser", curUser);
-
       if (curUser.user_agent != 'Node bot')
          this.notificationsGateway.sendRowDataToFront(curUser.id, newRowOrUpdated, "new-row");
 
@@ -52,33 +60,34 @@ export class RowService implements OnApplicationBootstrap {
    }
 
    async onApplicationBootstrap(): Promise<void> {
-      await this.getFormSheetsRows();
+      await this.fillBDFormSheets();
    }
 
-   private async getFormSheetsRows() {
-      const url: string =
-          "https://sheets.googleapis.com/v4/spreadsheets/" +
-          this.configService.get<string>('GOOGLE_DOC_KEY') +
-          "/values/" + encodeURI(this.configService.get<string>('SHEET_PAGE_1')) +
-          this.configService.get<string>('GOOGLE_SHEET_RANGE') + "?key=" +
-          this.configService.get<string>('GOOGLE_API_KEY');
-      let axiosData: any;
+   async getSheetData(): Promise<Array<Array<string>>> {
+      const auth = new google.auth.OAuth2(
+          this.configService.get<string>('CLIENT_ID'),
+          this.configService.get<string>('CLIENT_SECRET'),
+          this.configService.get<string>('REDIRECT_URI')
+      );
 
+      // Set your refresh token to get an access token
+      auth.setCredentials({refresh_token: this.configService.get<string>('REFRESH_TOKEN')});
+      const sheets = google.sheets({version: 'v4', auth});
       try {
-         const axiosResponses = await this.httpService.get<any>(url).toPromise()
-         axiosData = axiosResponses.data;
+         const response = await sheets.spreadsheets.values.get({
+            spreadsheetId: this.configService.get<string>('GOOGLE_DOC_KEY'),
+            range: this.configService.get<string>('GOOGLE_SHEET_RANGE'),
+         });
+         return response.data.values;
       } catch (error) {
-         console.error('Error loading data:', error[0]);
-         throw new HttpException(`Responce from Googlesheets- ${error[0]} and status_code- ${+error[1]}`, HttpStatus.BAD_REQUEST);
+         console.error('Error:', error.message);
       }
+   }
 
-      if (axiosData?.data?.values.length === 0)
-         throw new HttpException('Not found in one of the links any sneakers', HttpStatus.NOT_FOUND);
-
-
+   private async fillBDFormSheets() {
+      const values = await this.getSheetData();
       // Collect all promises
       const promises: Promise<Row>[] = [];
-      const values = axiosData.values;
       const botUser = await this.createOrFindUser(
           {ip: '192.168.1.1', user_agent: 'Node bot'});
 
@@ -89,7 +98,7 @@ export class RowService implements OnApplicationBootstrap {
 
             if (cellText) {
                const rowNumber: number = rowIndex + 1;
-               const columnLetter: string = String.fromCharCode(65 + colIndex); // Convert to A-Z
+               const columnLetter: string = String.fromCharCode(65 + colIndex); // Convert to A-Z 65 because array start from 0
                promises.push(
                    this.create({
                       row_sheets: rowNumber,
@@ -100,7 +109,6 @@ export class RowService implements OnApplicationBootstrap {
             }
          }
       }
-
       // Execute all promises in parallel
       try {
          const results = await Promise.all(promises);

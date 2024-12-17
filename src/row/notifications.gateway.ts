@@ -46,8 +46,6 @@ export class NotificationsGateway implements OnGatewayConnection, OnGatewayDisco
    }
 
    async sendRowDataToFront(clientIdWhoCreated: number, createdNewRow: Row, type: string): Promise<void> {
-      console.log('Send By WS-', clientIdWhoCreated, createdNewRow, type);
-
       // Iterate over the rooms map
       this.clientGlobal?.['adapter'].rooms.forEach((room, roomId) => {
          // Check if the roomId is not equal to userId Who Created this new post

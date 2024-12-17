@@ -5,6 +5,7 @@ import {PrismaService} from "../prisma.service";
 import {NotificationsGateway} from "./notifications.gateway";
 import {HttpModule} from "@nestjs/axios";
 import {ConfigModule, ConfigService} from "@nestjs/config";
+import {NotifscationModule} from "../notifscation/notifscation.module";
 
 @Module({
   controllers: [RowController],
@@ -17,8 +18,9 @@ import {ConfigModule, ConfigService} from "@nestjs/config";
         maxRedirects: configService.get('HTTP_MAX_REDIRECTS'),
       }),
       inject: [ConfigService],
-    })
+    }),
+    NotifscationModule
   ],
-  exports: [RowService]
+  //exports: [RowService]
 })
 export class RowModule {}

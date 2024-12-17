@@ -3,10 +3,13 @@ function doGet(e) {
     try {
         // Extract data from the edited cell and user information
         const getCurrentCell = e.source.getSheets()[0].getCurrentCell();
-        const userEmail = e.user.getEmail();
         const row = getCurrentCell.getRow();
         const column = getCurrentCell.getColumn();
         const text = getCurrentCell.getValues()[0][0];
+
+        const userEmail = e.user.getEmail();
+        console.log('getUserLoginId:', e.user.getUserLoginId());
+        console.log('getUsername:', e.user.getUsername());
 
         // Create the JSON payload for the POST request
         const payload = {
@@ -26,7 +29,6 @@ function doGet(e) {
 
         // Log event details for debugging
         console.log('Payload:', payload);
-        console.log('URL:', url);
 
         // Send the POST request
         UrlFetchApp.fetch(url, options);
@@ -36,4 +38,12 @@ function doGet(e) {
             .createTextOutput(JSON.stringify({ success: false, error: error.message }))
             .setMimeType(ContentService.MimeType.JSON);
     }
+}
+
+/**/
+function doGet(e) {
+    const email = Session.getActiveUser().getEmail();
+    console.log('email!!!:', email);
+    return ContentService.createTextOutput(JSON.stringify({ email }))
+        .setMimeType(ContentService.MimeType.JSON);
 }
