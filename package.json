@@ -22,7 +22,6 @@
     "prisma:migrate:dev": "prisma migrate dev"
   },
   "dependencies": {
-    "@nestjs/axios": "^3.1.3",
     "@nestjs/common": "^10.0.0",
     "@nestjs/config": "^3.1.1",
     "@nestjs/core": "^10.0.0",

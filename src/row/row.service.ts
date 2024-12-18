@@ -4,10 +4,9 @@ import {PrismaService} from "../prisma.service";
 import {ConfigService} from "@nestjs/config";
 import {Customer, Row} from "@prisma/client";
 import {NotificationsGateway} from "./notifications.gateway";
-import {HttpService} from "@nestjs/axios";
 import {PaginationsDto} from "./dto/parination-rows.dto";
 import {NotifscationService} from "../notifscation/notifscation.service";
-import {google, sheets_v4} from 'googleapis';
+import {google} from 'googleapis';
 
 @Injectable()
 export class RowService implements OnApplicationBootstrap {
@@ -16,7 +15,6 @@ export class RowService implements OnApplicationBootstrap {
 
    constructor(private prisma: PrismaService,
                private readonly configService: ConfigService,
-               private readonly httpService: HttpService,
                private notifscationService: NotifscationService,
                private readonly notificationsGateway: NotificationsGateway,
    ) {
@@ -43,12 +41,20 @@ export class RowService implements OnApplicationBootstrap {
             empty: createRowDto.empty || false,
          },
       });
+
       /*sent email notification*/
       const afterUpdateRowCount: number = await this.prisma.row.count();
-      if (afterUpdateRowCount - beforeUpdateRowCount > 0 && afterUpdateRowCount % 10 === 0) {
-         console.log('afterUpdateRowCount%');
-         //await this.notifscationService.createEmailNotific();
-      }
+      const withEmailCustomers: Customer[] = await this.prisma.customer.findMany({
+         where: {
+            email: {
+               not: '', // Ensures the email field is not an empty string
+            },
+         },
+      });
+
+      if (withEmailCustomers.length)
+         await this.notifscationService.createEmailNotific(afterUpdateRowCount, beforeUpdateRowCount, withEmailCustomers);
+
 
       /*after update bd with new data send it by WS*/
       const curUser: Customer = await this.createOrFindUser(userFromGuard, createRowDto.user_email);
@@ -63,7 +69,7 @@ export class RowService implements OnApplicationBootstrap {
       await this.fillBDFormSheets();
    }
 
-   async getSheetData(): Promise<Array<Array<string>>> {
+   private async getSheetData(): Promise<Array<Array<string>>> {
       const auth = new google.auth.OAuth2(
           this.configService.get<string>('CLIENT_ID'),
           this.configService.get<string>('CLIENT_SECRET'),
@@ -144,8 +150,8 @@ export class RowService implements OnApplicationBootstrap {
 
    }
 
+   /*if user create data from spreadsheet sometime we don't recive his email*/
    async createOrFindUser(userFromGuard: { ip: string; user_agent: string }, user_email = ''): Promise<Customer> {
-      //console.log('user_email-', user_email);
       if (!user_email)
          return this.prisma.customer.upsert({
             where: {
@@ -177,6 +183,5 @@ export class RowService implements OnApplicationBootstrap {
          else return customer;
       }
    }
-
 
 }
