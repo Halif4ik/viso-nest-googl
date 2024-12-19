@@ -1,0 +1,28 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Row {
+  id            Int      @id @default(autoincrement())
+  row_sheets    Int
+  column_sheets String
+  text          String
+  empty         Boolean  @default(false)
+  createdAt     DateTime @default(now())
+
+  @@unique([row_sheets, column_sheets])
+}
+
+model Customer {
+  id         Int    @id @default(autoincrement())
+  ip         String
+  user_agent String
+  email      String
+
+  @@unique([ip, user_agent])
+}
