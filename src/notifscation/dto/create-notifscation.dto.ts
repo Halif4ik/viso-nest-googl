@@ -4,7 +4,7 @@ import {Transform} from "class-transformer";
 
 export class CreateNotifscationDto {
     @IsEmail()
-    @ApiProperty({example: "temp1@gmail.com", description: 'Email example'})
+    @ApiProperty({example: "temp1@gmail.com", description: 'Email example for recive email notification'})
     readonly user_email: string;
 
 }

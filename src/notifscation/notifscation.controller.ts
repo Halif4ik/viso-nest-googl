@@ -1,6 +1,7 @@
 import {Controller, Get, Post, Body, Patch, Param, Delete} from '@nestjs/common';
 import {NotifscationService} from './notifscation.service';
 import {CreateNotifscationDto} from './dto/create-notifscation.dto';
+import {ApiTags} from "@nestjs/swagger";
 
 @Controller('notifscation')
 export class NotifscationController {
@@ -8,6 +9,7 @@ export class NotifscationController {
     }
 
     /*temp handle for testing sendgrid*/
+    @ApiTags('Testing notification')
     @Post()
     async create(@Body() createNotifscationDto: CreateNotifscationDto) {
         return this.notifscationService.createEmailNotific(10, 9, [
