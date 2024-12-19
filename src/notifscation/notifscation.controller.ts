@@ -10,7 +10,7 @@ export class NotifscationController {
     /*temp handle for testing sendgrid*/
     @Post()
     async create(@Body() createNotifscationDto: CreateNotifscationDto) {
-        return this.notifscationService.createEmailNotific(0, 10, [
+        return this.notifscationService.createEmailNotific(10, 9, [
             {
                 id: 1,
                 ip: "String",

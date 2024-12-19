@@ -92,7 +92,6 @@ export class RowService implements OnApplicationBootstrap {
 
    private async fillBDFormSheets() {
       const values = await this.getSheetData();
-      console.log('values-®',values);
       // Collect all promises
       const promises: Promise<Row>[] = [];
       const botUser = await this.createOrFindUser(
