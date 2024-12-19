@@ -12,11 +12,13 @@ export class NotifscationService {
    }
 
    async createEmailNotific(afterUpdateRowCount: number, beforeUpdateRowCount: number, cusmomersWithEmail: Customer[]): Promise<void> {
+      console.log('afterUpdateRowCount-',afterUpdateRowCount);
       try {
          if (
              afterUpdateRowCount - beforeUpdateRowCount > 0 &&
              afterUpdateRowCount % 10 === 0
          ) {
+            console.log('beforeUpdateRowCount-',beforeUpdateRowCount);
             // Create email messages for all customers
             const emails = cusmomersWithEmail.map((customer) => ({
                to: customer.email,
@@ -32,12 +34,13 @@ export class NotifscationService {
           `,
             }));
             await sgMail.send(emails);
-            console.log(`Emails notifications sent successfully to ${emails}emails.`);
+            console.log(`Emails notifications sent successfully to ${emails.length}emails.`);
          }
       } catch (error) {
          console.error('Error sending email notifications:', error);
          throw new Error('Failed to send email notifications.');
       }
+
    }
 
 

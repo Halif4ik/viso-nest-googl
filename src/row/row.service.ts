@@ -47,7 +47,7 @@ export class RowService implements OnApplicationBootstrap {
       const withEmailCustomers: Customer[] = await this.prisma.customer.findMany({
          where: {
             email: {
-               not: '', // Ensures the email field is not an empty string
+               not: '',
             },
          },
       });
