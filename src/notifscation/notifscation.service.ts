@@ -12,13 +12,11 @@ export class NotifscationService {
    }
 
    async createEmailNotific(afterUpdateRowCount: number, beforeUpdateRowCount: number, cusmomersWithEmail: Customer[]): Promise<void> {
-      console.log('afterUpdateRowCount-',afterUpdateRowCount);
       try {
          if (
              afterUpdateRowCount - beforeUpdateRowCount > 0 &&
              afterUpdateRowCount % 10 === 0
          ) {
-            console.log('beforeUpdateRowCount-',beforeUpdateRowCount);
             // Create email messages for all customers
             const emails = cusmomersWithEmail.map((customer) => ({
                to: customer.email,
